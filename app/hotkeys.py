@@ -72,20 +72,20 @@ class HotkeyAdapter:
                                 self.bus.commands.put_nowait, Command(command)
                             )
                             break
-            
-            # Fallback: Check if the current key is a Ctrl+number combination that comes as single vk
-            # This handles cases where some keyboards/systems send Ctrl+1 as just vk 49
-            if hasattr(key, 'vk'):
-                char = self._vk_to_digit(key.vk)
-                if char and char in self.key_mappings:
-                    # Check if Ctrl is currently pressed (either as separate key or modifier)
-                    ctrl_pressed = (Key.ctrl in self.pressed_keys or 
-                                  (hasattr(key, 'modifiers') and Key.ctrl in key.modifiers))
-                    if ctrl_pressed:
-                        command = self.key_mappings[char]
-                        self._loop.call_soon_threadsafe(
-                            self.bus.commands.put_nowait, Command(command)
-                        )
+            else:
+                # Fallback: Check if the current key is a Ctrl+number combination that comes as single vk
+                # This handles cases where some keyboards/systems send Ctrl+1 as just vk 49
+                # Only check this if Ctrl is NOT already in pressed_keys to avoid duplicates
+                if hasattr(key, 'vk'):
+                    char = self._vk_to_digit(key.vk)
+                    if char and char in self.key_mappings:
+                        # Check if Ctrl is currently pressed (either as separate key or modifier)
+                        ctrl_pressed = (hasattr(key, 'modifiers') and Key.ctrl in key.modifiers)
+                        if ctrl_pressed:
+                            command = self.key_mappings[char]
+                            self._loop.call_soon_threadsafe(
+                                self.bus.commands.put_nowait, Command(command)
+                            )
         
         except Exception as e:
             print(f"❌ Error in on_key_press: {e}")
