@@ -24,6 +24,15 @@ class HotkeyAdapter:
             '9': 'check_pdf_folder'
         }
 
+    def _vk_to_digit(self, vk):
+        """Convert virtual key code to digit character for cross-platform compatibility"""
+        vk_to_char = {
+            49: '1', 50: '2', 51: '3', 52: '4', 53: '5', 54: '6', 55: '7', 56: '8', 57: '9',
+            97: '1', 98: '2', 99: '3', 100: '4', 101: '5', 102: '6', 103: '7', 104: '8', 105: '9',
+            18: '1', 19: '2', 20: '3', 21: '4', 22: '5', 23: '6'
+        }
+        return vk_to_char.get(vk)
+
     async def start(self):
         self._loop = asyncio.get_running_loop()
         self._listener = keyboard.Listener(on_press=self._on_press, on_release=self._on_release)
@@ -54,20 +63,9 @@ class HotkeyAdapter:
                             self.bus.commands.put_nowait, Command(command)
                         )
                         break
-                    elif hasattr(pressed_key, 'vk') and pressed_key.vk in range(18, 25):  # vk 18-24 are 1-6
-                        # Map vk codes to actual numbers (cross-platform compatibility)
-                        vk_to_char = {18: '1', 19: '2', 20: '3', 21: '4', 22: '6', 23: '5'}
-                        char = vk_to_char.get(pressed_key.vk)
-                        if char and char in self.key_mappings:
-                            command = self.key_mappings[char]
-                            self._loop.call_soon_threadsafe(
-                                self.bus.commands.put_nowait, Command(command)
-                            )
-                            break
-                    elif hasattr(pressed_key, 'vk') and pressed_key.vk in range(25, 28):  # vk 25-27 are 7-9
-                        # Map vk codes for 7-9
-                        vk_to_char = {25: '7', 26: '8', 27: '9'}
-                        char = vk_to_char.get(pressed_key.vk)
+                    elif hasattr(pressed_key, 'vk'):
+                        # Use the comprehensive vk to digit mapping for cross-platform compatibility
+                        char = self._vk_to_digit(pressed_key.vk)
                         if char and char in self.key_mappings:
                             command = self.key_mappings[char]
                             self._loop.call_soon_threadsafe(
