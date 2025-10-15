@@ -15,11 +15,11 @@ async def run_app(cfg: Config):
     stop_event = asyncio.Event()
 
     # Initialize components
-    ws = WSClient(bus, cfg.ws_url, cfg.reconnect_base_s, cfg.reconnect_max_s)
-    pdf = PDFWatcher(bus, cfg.pdf_dir, cfg.pdf_glob)
-    hk = HotkeyAdapter(bus, cfg.hotkey_stop, cfg.hotkey_check_pdf)
     api = HTTPAPI(bus, cfg.http_host, cfg.http_port)
-    handlers = Handlers(bus, cfg.pdf_dir, cfg.pdf_wait_window_s)
+    ws = WSClient(bus, cfg.ws_url, cfg.reconnect_base_s, cfg.reconnect_max_s, api)
+    pdf = PDFWatcher(bus, cfg.pdf_dir, cfg.pdf_glob)
+    hk = HotkeyAdapter(bus, "", "")  # F keys removed, using only Ctrl+numbers
+    handlers = Handlers(bus, cfg.pdf_dir, cfg.pdf_wait_window_s, api)
 
     # Create tasks
     tasks = [

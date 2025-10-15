@@ -24,3 +24,4 @@ class PDFWatcher:
         except Exception as e:
             print(f"❌ Error in PDF watcher: {e}")
 
+

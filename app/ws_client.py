@@ -7,13 +7,14 @@ from websockets.client import WebSocketClientProtocol
 from .bus import Bus
 
 class WSClient:
-    def __init__(self, bus: Bus, url: str, base: float, max_delay: float):
+    def __init__(self, bus: Bus, url: str, base: float, max_delay: float, user_id_ref=None):
         self.bus = bus
         self.url = url
         self.base = base
         self.max_delay = max_delay
         self.ws: WebSocketClientProtocol | None = None
         self._stop = asyncio.Event()
+        self.user_id_ref = user_id_ref  # Reference to user_id from HTTPAPI
 
     async def start(self):
         sender = asyncio.create_task(self._sender())

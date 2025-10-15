@@ -1,7 +1,12 @@
 from dataclasses import dataclass
 from pathlib import Path
 import os
-import tomllib
+
+# Handle TOML parsing for different Python versions
+try:
+    import tomllib  # Python 3.11+
+except ImportError:
+    import tomli as tomllib  # Python < 3.11
 
 @dataclass(frozen=True)
 class Config:
@@ -34,4 +39,3 @@ def load_config() -> Config:
         reconnect_base_s = float(data.get("reconnect_base_s", 0.5)),
         reconnect_max_s = float(data.get("reconnect_max_s", 15.0)),
     )
-

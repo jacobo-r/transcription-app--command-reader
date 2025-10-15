@@ -8,7 +8,7 @@ pdf_dir = "./pdf_for_submission"
 
 # HTTP API server settings
 http_host = "127.0.0.1"
-http_port = 9001
+http_port = 8080
 
 # Hotkey bindings
 hotkey_stop = "f1"
@@ -21,4 +21,5 @@ pdf_wait_window_s = 5
 # WebSocket reconnection settings
 reconnect_base_s = 0.5
 reconnect_max_s = 15.0
+
 

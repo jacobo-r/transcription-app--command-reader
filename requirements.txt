@@ -1,24 +1,21 @@
 # Audio Transcription Controller v2 Requirements
-# Clean async-first architecture
+# Essential packages only
 
-# Core async libraries
-asyncio-mqtt==0.16.1
-websockets==12.0
-aiohttp==3.9.1
+# WebSocket client
+websockets>=11.0
+
+# HTTP server
+aiohttp>=3.8.0
 
 # File watching (async alternative to watchdog)
-watchfiles==0.21.0
+watchfiles>=0.18.0
 
 # Hotkey handling
-pynput==1.7.6
+pynput>=1.7.0
 
 # Clipboard operations
-pyperclip==1.8.2
+pyperclip>=1.8.0
 
-# Configuration
-tomli==2.0.1; python_version < "3.11"
-tomllib; python_version >= "3.11"
-
-# Optional: Better error handling and logging
-structlog==23.2.0
+# TOML parsing (only for Python < 3.11)
+tomli>=2.0.0; python_version < "3.11"
 

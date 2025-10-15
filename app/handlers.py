@@ -5,10 +5,11 @@ from pathlib import Path
 from .bus import Bus, Command
 
 class Handlers:
-    def __init__(self, bus: Bus, pdf_dir: Path, pdf_wait_window_s: int):
+    def __init__(self, bus: Bus, pdf_dir: Path, pdf_wait_window_s: int, user_id_ref=None):
         self.bus = bus
         self.pdf_dir = pdf_dir
         self.wait_s = pdf_wait_window_s
+        self.user_id_ref = user_id_ref  # Reference to user_id from HTTPAPI
         
         # Audio state (minimal, server is source of truth)
         self.audio_state = {
@@ -17,6 +18,12 @@ class Handlers:
             'position': 0,
             'duration': 180
         }
+
+    def _add_user_id(self, payload):
+        """Add user_id to payload if available"""
+        if self.user_id_ref and hasattr(self.user_id_ref, 'user_id') and self.user_id_ref.user_id:
+            payload['user_id'] = self.user_id_ref.user_id
+        return payload
 
     async def run(self, stop_event: asyncio.Event):
         while not stop_event.is_set():
@@ -86,7 +93,7 @@ class Handlers:
                 'pdf_filename': path.name,
                 'timestamp': time.time()
             }
-            await self.bus.outbound.put(payload)
+            await self.bus.outbound.put(self._add_user_id(payload))
             
             # Delete the PDF file after successful send
             os.remove(path)
@@ -98,11 +105,12 @@ class Handlers:
     async def _play_pause(self):
         """Toggle play/pause"""
         self.audio_state['is_playing'] = not self.audio_state['is_playing']
-        await self.bus.outbound.put({
+        payload = {
             'command': 'play_pause',
             'state': self.audio_state,
             'timestamp': time.time()
-        })
+        }
+        await self.bus.outbound.put(self._add_user_id(payload))
 
     async def _backward_audio(self):
         """Skip backward 10 seconds"""
@@ -110,11 +118,12 @@ class Handlers:
             self.audio_state['position'] - 10,
             0
         )
-        await self.bus.outbound.put({
+        payload = {
             'command': 'backward_audio',
             'state': self.audio_state,
             'timestamp': time.time()
-        })
+        }
+        await self.bus.outbound.put(self._add_user_id(payload))
 
     async def _forward_audio(self):
         """Skip forward 10 seconds"""
@@ -122,38 +131,42 @@ class Handlers:
             self.audio_state['position'] + 10,
             self.audio_state['duration']
         )
-        await self.bus.outbound.put({
+        payload = {
             'command': 'forward_audio',
             'state': self.audio_state,
             'timestamp': time.time()
-        })
+        }
+        await self.bus.outbound.put(self._add_user_id(payload))
 
     async def _previous_audio(self):
         """Previous audio file"""
         self.audio_state['current_file'] = f'audio_{int(time.time())-1}.mp3'
         self.audio_state['position'] = 0
-        await self.bus.outbound.put({
+        payload = {
             'command': 'previous_audio',
             'state': self.audio_state,
             'timestamp': time.time()
-        })
+        }
+        await self.bus.outbound.put(self._add_user_id(payload))
 
     async def _next_audio(self):
         """Next audio file"""
         self.audio_state['current_file'] = f'audio_{int(time.time())}.mp3'
         self.audio_state['position'] = 0
-        await self.bus.outbound.put({
+        payload = {
             'command': 'next_audio',
             'state': self.audio_state,
             'timestamp': time.time()
-        })
+        }
+        await self.bus.outbound.put(self._add_user_id(payload))
 
     async def _copy_transcription(self):
         """Request transcription from server"""
-        await self.bus.outbound.put({
+        payload = {
             'command': 'get_transcription',
             'timestamp': time.time()
-        })
+        }
+        await self.bus.outbound.put(self._add_user_id(payload))
 
     async def _save_edited_transcription(self):
         """Save edited transcription from clipboard"""
@@ -161,10 +174,11 @@ class Handlers:
             import pyperclip
             clipboard_content = pyperclip.paste()
             print("Copied content =>", clipboard_content)
-            await self.bus.outbound.put({
+            payload = {
                 'command': 'save_edited_transcription',
                 'edited_transcription_content': clipboard_content
-            })
+            }
+            await self.bus.outbound.put(self._add_user_id(payload))
         except Exception as e:
             print(f"❌ Error saving edited transcription: {e}")
 

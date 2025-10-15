@@ -199,8 +199,6 @@ hotkey_check_pdf = "f2"
 | `Ctrl+6` | `copy_transcription` | Copy transcription to clipboard | < 100ms |
 | `Ctrl+7` | `save_edited_transcription` | Save edited transcription | < 100ms |
 | `Ctrl+9` | `check_pdf_folder` | Check PDF folder | < 5s |
-| `F1` | `stop` | Stop application | < 100ms |
-| `F2` | `check_pdf_folder` | Check PDF folder | < 5s |
 | `ESC` | `stop` | Exit application | < 100ms |
 
 ### WebSocket Protocol
@@ -285,14 +283,8 @@ hotkey_check_pdf = "f2"
 # Installation
 pip install -r requirements.txt
 
-# Testing
-python test.py
-
 # Running
 python main.py
-
-# Development
-python -m app.lifecycle
 ```
 
 ### Testing Strategy
