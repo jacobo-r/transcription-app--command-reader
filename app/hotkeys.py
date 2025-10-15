@@ -54,7 +54,7 @@ class HotkeyAdapter:
             self.pressed_keys.add(key)
             
             # Check if Ctrl is pressed and we have a number key
-            if Key.ctrl in self.pressed_keys:
+            if Key.ctrl in self.pressed_keys or Key.ctrl_l in self.pressed_keys:
                 # Look for number keys (1-9)
                 for pressed_key in self.pressed_keys:
                     if hasattr(pressed_key, 'char') and pressed_key.char in self.key_mappings:
@@ -80,7 +80,8 @@ class HotkeyAdapter:
                     char = self._vk_to_digit(key.vk)
                     if char and char in self.key_mappings:
                         # Check if Ctrl is currently pressed (either as separate key or modifier)
-                        ctrl_pressed = (hasattr(key, 'modifiers') and Key.ctrl in key.modifiers)
+                        ctrl_pressed = (Key.ctrl in self.pressed_keys or Key.ctrl_l in self.pressed_keys or
+                                      (hasattr(key, 'modifiers') and Key.ctrl in key.modifiers))
                         if ctrl_pressed:
                             command = self.key_mappings[char]
                             self._loop.call_soon_threadsafe(
