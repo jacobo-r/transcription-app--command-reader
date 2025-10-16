@@ -69,9 +69,10 @@ class Handlers:
         while asyncio.get_event_loop().time() < deadline:
             found = list(self.pdf_dir.glob("*.pdf"))
             if found:
-                for p in found:
-                    await self._send_pdf(p)
-                print("✅ PDF folder check completed - files found")
+                # Send only the first PDF file found
+                first_pdf = found[0]
+                await self._send_pdf(first_pdf)
+                print(f"✅ PDF folder check completed - sent 1 file: {first_pdf.name}")
                 return
             await asyncio.sleep(0.25)
         print("✅ PDF folder check completed - no files found")
