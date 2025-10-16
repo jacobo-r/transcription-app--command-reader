@@ -3,7 +3,6 @@ import signal
 import contextlib
 from .bus import Bus
 from .ws_client import WSClient
-from .pdf_watcher import PDFWatcher
 from .hotkeys import HotkeyAdapter
 from .http_api import HTTPAPI
 from .handlers import Handlers
@@ -17,14 +16,12 @@ async def run_app(cfg: Config):
     # Initialize components
     api = HTTPAPI(bus, cfg.http_host, cfg.http_port)
     ws = WSClient(bus, cfg.ws_url, cfg.reconnect_base_s, cfg.reconnect_max_s, api)
-    pdf = PDFWatcher(bus, cfg.pdf_dir, cfg.pdf_glob)
     hk = HotkeyAdapter(bus, "", "")  # F keys removed, using only Ctrl+numbers
     handlers = Handlers(bus, cfg.pdf_dir, cfg.pdf_wait_window_s, api)
 
     # Create tasks
     tasks = [
         asyncio.create_task(ws.start(), name="ws"),
-        asyncio.create_task(pdf.start(), name="pdf"),
         asyncio.create_task(hk.start(), name="hotkeys"),
         asyncio.create_task(api.start(), name="http"),
         asyncio.create_task(handlers.run(stop_event), name="handlers"),
@@ -38,6 +35,7 @@ async def run_app(cfg: Config):
             )
 
     print("🎮 Audio Transcription Controller v2")
+    print("📁 PDF processing: Manual only (use Ctrl+9 to check)")
     print("✅ All components started successfully")
     
     # Wait for stop signal

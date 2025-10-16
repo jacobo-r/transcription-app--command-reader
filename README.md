@@ -189,6 +189,8 @@ hotkey_check_pdf = "f2"
 ## 🚀 Feature Specifications
 
 ### Hotkey Commands
+**Note**: PDF processing is now manual-only. Use Ctrl+9 to check for PDFs when ready.
+
 | Hotkey | Command | Description | Response Time |
 |--------|---------|-------------|---------------|
 | `Ctrl+1` | `play_pause` | Toggle audio playback | < 50ms |
@@ -198,7 +200,7 @@ hotkey_check_pdf = "f2"
 | `Ctrl+5` | `next_audio` | Next audio file | < 50ms |
 | `Ctrl+6` | `copy_transcription` | Copy transcription to clipboard | < 100ms |
 | `Ctrl+7` | `save_edited_transcription` | Save edited transcription | < 100ms |
-| `Ctrl+9` | `check_pdf_folder` | Check PDF folder | < 5s |
+| `Ctrl+9` | `check_pdf_folder` | Check PDF folder (manual trigger) | < 5s |
 
 ### WebSocket Protocol
 ```json
