@@ -199,7 +199,6 @@ hotkey_check_pdf = "f2"
 | `Ctrl+6` | `copy_transcription` | Copy transcription to clipboard | < 100ms |
 | `Ctrl+7` | `save_edited_transcription` | Save edited transcription | < 100ms |
 | `Ctrl+9` | `check_pdf_folder` | Check PDF folder | < 5s |
-| `ESC` | `stop` | Exit application | < 100ms |
 
 ### WebSocket Protocol
 ```json

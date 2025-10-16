@@ -29,20 +29,20 @@ class Handlers:
         while not stop_event.is_set():
             try:
                 cmd = await asyncio.wait_for(self.bus.commands.get(), timeout=1.0)
-                await self._handle_command(cmd)
+                await self._handle_command(cmd, stop_event)
                 self.bus.commands.task_done()
             except asyncio.TimeoutError:
                 continue
             except Exception as e:
                 print(f"❌ Error handling command: {e}")
 
-    async def _handle_command(self, cmd: Command):
+    async def _handle_command(self, cmd: Command, stop_event: asyncio.Event):
         """Handle incoming commands"""
         print(f"🎯 COMMAND: {cmd.type}")
         
         if cmd.type == "stop":
-            # This will be handled by the main loop
-            pass
+            # Set the stop event to trigger application shutdown
+            stop_event.set()
         elif cmd.type == "check_pdf_folder":
             await self._check_pdf_window()
         elif cmd.type == "pdf_detected":

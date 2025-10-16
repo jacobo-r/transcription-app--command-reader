@@ -41,7 +41,7 @@ class HotkeyAdapter:
         print("Hotkeys: Ctrl+1(Play/Pause) Ctrl+2(Backward) Ctrl+3(Forward)")
         print("         Ctrl+4(Previous) Ctrl+5(Next) Ctrl+6(Transcription)")
         print("         Ctrl+7(Save Edited) Ctrl+9(Check PDF Folder)")
-        print("Press ESC to exit\n")
+        print("Use Ctrl+C to exit\n")
         
         # Keep task alive
         while True:
@@ -96,13 +96,6 @@ class HotkeyAdapter:
         try:
             # Remove key from pressed set
             self.pressed_keys.discard(key)
-            
-            # Handle ESC key
-            if hasattr(key, 'name') and key.name.lower() == 'esc':
-                self._loop.call_soon_threadsafe(
-                    self.bus.commands.put_nowait, Command("stop")
-                )
-                return False  # Stop the listener
                 
         except Exception as e:
             print(f"❌ Error in on_key_release: {e}")
