@@ -1,0 +1,71 @@
+Option Explicit
+
+' === CONFIGURATION ===
+Const BASE_PATH = "D:\USUARIOS (NO BORRAR)\TRANSCRIPCION04\Downloads\transcription-app--command-reader-main"
+Const PDF_EXPORT_DIR = BASE_PATH & "\pdf_for_submission"
+' ======================
+
+Private Function Prop(ByVal n$, ByVal v As Variant) As com.sun.star.beans.PropertyValue
+    Dim p As New com.sun.star.beans.PropertyValue
+    p.Name = n
+    p.Value = v
+    Prop = p
+End Function
+
+Private Function NowStamp$()
+    Dim d As Date: d = Now
+    NowStamp = Format(d, "yyyy-mm-dd_hh-nn-ss")
+End Function
+
+Private Function SafeTitle$(ByVal s$)
+    Dim t$: t = s
+    If t = "" Then t = "document"
+    SafeTitle = Replace(t, " ", "_")
+End Function
+
+Private Sub EnsureFolder(path$)
+    On Error Resume Next
+    MkDir path
+    On Error GoTo 0
+End Sub
+
+' === MAIN ROUTINE ===
+Sub ExportPDFToFolder()
+    On Error GoTo Oops
+
+    ' Ensure there’s an open document
+    Dim doc As Object
+    doc = ThisComponent
+    If IsNull(doc) Then
+        MsgBox "No active document found.", 48, "Export PDF"
+        Exit Sub
+    End If
+
+    ' Ensure export folder exists
+    Call EnsureFolder(PDF_EXPORT_DIR)
+
+    ' Choose export filter based on document type
+    Dim filterName$
+    If doc.supportsService("com.sun.star.sheet.SpreadsheetDocument") Then
+        filterName = "calc_pdf_Export"
+    Else
+        filterName = "writer_pdf_Export"
+    End If
+
+    ' Build file name
+    Dim pdfPath$, pdfUrl$
+    pdfPath = PDF_EXPORT_DIR & "\" & SafeTitle(doc.Title) & "_" & NowStamp() & ".pdf"
+    pdfUrl = ConvertToURL(pdfPath)
+
+    ' Export PDF
+    Dim args(0) As New com.sun.star.beans.PropertyValue
+    args(0) = Prop("FilterName", filterName)
+    doc.storeToURL pdfUrl, args()
+
+    ' Notify success
+    MsgBox "PDF exported to: " & pdfPath, 64, "Done"
+    Exit Sub
+
+Oops:
+    MsgBox "Error " & Err & ": " & Error$, 16, "Export PDF"
+End Sub
