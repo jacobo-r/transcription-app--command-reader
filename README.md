@@ -1,3 +1,7 @@
+
+# CAMBIAR EL PATH EN EL TOML Y EN EL CONFIG DE ./PDF_FOR_SUBMISSION AL PATH ABSOLUTO PARA QUE FUNCIONE CON EL PROGRAMADOR DE TAREAS
+
+
 # Audio Transcription Controller v2
 ## Professional Software Specification Document
 
