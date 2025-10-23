@@ -67,22 +67,39 @@ class WSClient:
         except Exception as e:
             print(f"❌ Error handling message: {e}")
 
+    # Estas líneas se modificaron
     async def _sender(self):
         while not self._stop.is_set():
             try:
                 payload = await asyncio.wait_for(self.bus.outbound.get(), timeout=1.0)
+
                 if self.ws is not None:
+                    # 🔧 Inject user_id dynamically
+                    user_id = None
+                    if self.user_id_ref:
+                        if hasattr(self.user_id_ref, "user_id"):
+                            user_id = self.user_id_ref.user_id
+                        else:
+                            user_id = str(self.user_id_ref)
+
+                    # Ensure payload is dict and JSON-safe
+                    if isinstance(payload, dict):
+                        if user_id:
+                            payload["user_id"] = user_id
+                    else:
+                        payload = {"command": str(payload), "user_id": user_id}
+
                     await self.ws.send(json.dumps(payload))
                     print(f"📤 Sent: {payload}")
+
             except asyncio.TimeoutError:
                 continue
             except Exception as e:
                 print(f"❌ Error sending message: {e}")
             finally:
-                try:
+                with contextlib.suppress(ValueError):
                     self.bus.outbound.task_done()
-                except ValueError:
-                    pass  # Queue was empty
+            ###
 
     async def stop(self):
         self._stop.set()

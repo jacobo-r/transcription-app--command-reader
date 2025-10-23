@@ -69,13 +69,21 @@ class Handlers:
         while asyncio.get_event_loop().time() < deadline:
             found = list(self.pdf_dir.glob("*.pdf"))
             if found:
-                # Send only the first PDF file found
                 first_pdf = found[0]
                 await self._send_pdf(first_pdf)
                 print(f"✅ PDF folder check completed - sent 1 file: {first_pdf.name}")
                 return
             await asyncio.sleep(0.25)
         print("✅ PDF folder check completed - no files found")
+
+        # Estas líneas fueron agregadas para subir el ctrl+9
+        await self.bus.outbound.put({
+            "command": "check_pdf_folder",
+            "result": "no_files_found",
+            "timestamp": time.time(),
+            "user_id": self.user_id_ref
+        })
+        ###
 
     async def _send_pdf(self, path: Path):
         """Send PDF file via WebSocket"""
@@ -95,7 +103,7 @@ class Handlers:
                 'timestamp': time.time()
             }
             await self.bus.outbound.put(self._add_user_id(payload))
-            
+
             # Delete the PDF file after successful send
             os.remove(path)
             print(f"📄 PDF sent and deleted: {path.name}")
