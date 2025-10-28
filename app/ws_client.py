@@ -61,7 +61,7 @@ class WSClient:
                 if transcription:
                     # Copy to clipboard
                     import pyperclip
-                    pyperclip.copy(transcription)
+                    pyperclip.copy(get_transcription_highlight(transcription))
                     print("📋 Transcription copied to clipboard!")
         
         except Exception as e:
@@ -107,3 +107,14 @@ class WSClient:
             with contextlib.suppress(Exception):
                 await self.ws.close()
 
+#agregado
+def get_transcription_highlight(text):
+    border = "=" * 60
+    guide = (
+        f"Modifique y copie el texto entre = para la corrección\n"
+        f"{border}\n"
+        f"{text}\n"
+        f"{border}\n"
+    )
+    return guide
+###

@@ -11,7 +11,7 @@ class HotkeyAdapter:
         self._listener = None
         self._loop = None
         self.pressed_keys = set()
-        
+
         # Map number keys to commands (like v1)
         self.key_mappings = {
             '1': 'play_pause',
@@ -21,7 +21,9 @@ class HotkeyAdapter:
             '5': 'next_audio',
             '6': 'copy_transcription',
             '7': 'save_edited_transcription',
-            '9': 'check_pdf_folder'
+            '9': 'check_pdf_folder',
+            '0': 'keep_audio', #agregado
+            'm': 'keep_audio' #agregado
         }
 
     def _vk_to_digit(self, vk):
@@ -29,7 +31,9 @@ class HotkeyAdapter:
         vk_to_char = {
             49: '1', 50: '2', 51: '3', 52: '4', 53: '5', 54: '6', 55: '7', 56: '8', 57: '9',
             97: '1', 98: '2', 99: '3', 100: '4', 101: '5', 102: '6', 103: '7', 104: '8', 105: '9',
-            18: '1', 19: '2', 20: '3', 21: '4', 22: '5', 23: '6'
+            18: '1', 19: '2', 20: '3', 21: '4', 22: '5', 23: '6',
+            #agregado
+            48: '0', 96: '0', 77: 'M'
         }
         return vk_to_char.get(vk)
 

@@ -61,6 +61,9 @@ class Handlers:
             await self._copy_transcription()
         elif cmd.type == "save_edited_transcription":
             await self._save_edited_transcription()
+        # agregado
+        elif cmd.type == 'keep_audio':
+            await self.keep_audio()
 
     async def _check_pdf_window(self):
         """Wait a short window for a file to appear; if none, still exit quickly."""
@@ -191,3 +194,11 @@ class Handlers:
         except Exception as e:
             print(f"❌ Error saving edited transcription: {e}")
 
+    # agregado
+    async def keep_audio(self):
+        print("✅ Keep audio")
+        payload = {
+            'command': 'keep_audio',
+            'timestamp': time.time()
+        }
+        await self.bus.outbound.put(self._add_user_id(payload))

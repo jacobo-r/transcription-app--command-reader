@@ -16,6 +16,7 @@ CommandType = Literal[
     "next_audio",
     "copy_transcription",
     "save_edited_transcription",
+    "keep_audio", # agregado
 ]
 
 @dataclass(frozen=True)
