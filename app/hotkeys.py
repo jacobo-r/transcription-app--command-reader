@@ -1,60 +1,58 @@
-from pynput import keyboard
-from pynput.keyboard import Key
 import asyncio
+import keyboard
 from .bus import Bus, Command
 
 class HotkeyAdapter:
-    def __init__(self, bus: Bus, hotkey_stop: str, hotkey_check_pdf: str):
+    def __init__(self, bus: Bus, hotkey_stop: str = "", hotkey_check_pdf: str = ""):
         self.bus = bus
-        self.hotkey_stop = hotkey_stop.lower()
-        self.hotkey_check_pdf = hotkey_check_pdf.lower()
-        self._listener = None
         self._loop = None
-        self.pressed_keys = set()
+        self._running = True
 
-        # Map number keys to commands (like v1)
+        # Map de teclas → comandos
         self.key_mappings = {
-            Key.f1: 'play_pause',
-            Key.f2: 'backward_audio',
-            Key.f3: 'forward_audio',
-            Key.f4: 'previous_audio',
-            Key.f5: 'next_audio',
-            Key.f6: 'copy_transcription',
-            Key.f7: 'save_edited_transcription',
-            Key.f9: 'check_pdf_folder',
-            Key.f10: 'keep_audio', #agregado
-            'm': 'keep_audio' #agregado
+            # F keys disponibles
+            'f2': 'play_pause',
+            'f3': 'backward_audio',
+            'f5': 'forward_audio',
+            'f7': 'previous_audio',
+            'f11': 'next_audio',
+            'f12': 'keep_audio', # agregado
+
+            'ctrl+1': 'copy_transcription',
+            'ctrl+3': 'save_edited_transcription',
+            'ctrl+5': 'check_pdf_folder',
         }
 
     async def start(self):
+        """Inicia el listener global de hotkeys."""
         self._loop = asyncio.get_running_loop()
-        self._listener = keyboard.Listener(on_press=self._on_press, on_release=self._on_release)
-        self._listener.start()
-        print("🎮 Hotkey listener started")
-        print("Hotkeys: Ctrl+1(Play/Pause) Ctrl+2(Backward) Ctrl+3(Forward)")
-        print("         Ctrl+4(Previous) Ctrl+5(Next) Ctrl+6(Transcription)")
-        print("         Ctrl+7(Save Edited) Ctrl+9(Check PDF Folder)")
-        print("Use Ctrl+C to exit\n")
-        
-        # Keep task alive
-        while True:
-            await asyncio.sleep(3600)
 
-    def _on_press(self, key):
-        """Handle key press events (like v1)"""
+        print("🎮 Hotkey listener started (keyboard lib)")
+        print("Atajos activos:")
+        for combo, cmd in self.key_mappings.items():
+            print(f"  {combo:<12} → {cmd}")
+
+        # Registrar los hotkeys globales
+        for combo, cmd in self.key_mappings.items():
+            keyboard.add_hotkey(combo, self._trigger_command, args=(cmd,))
+
+        # Mantener tarea viva mientras la app corre
         try:
-            if key in self.key_mappings:
-                cmd = self.key_mappings[key]
-                #Send commands to the bus
-                self._loop.call_soon_threadsafe(self.bus.commands.put_nowait, Command(cmd))    
-        except Exception as e:
-            print(f"❌ Error in on_key_press: {e}")
+            while self._running:
+                await asyncio.sleep(1)
+        except asyncio.CancelledError:
+            pass
+        finally:
+            self.stop()
+            print("⭕️ Hotkey listener stopped")
 
-    def _on_release(self, key):
-        """Handle key release events"""
-        pass
+    def _trigger_command(self, cmd: str):
+        """Envía el comando al bus desde el hook global."""
+        if self._loop and self.bus:
+            self._loop.call_soon_threadsafe(self.bus.commands.put_nowait, Command(cmd))
+            print(f"🟢 Command triggered: {cmd}")
 
-    async def stop(self):
-        if self._listener:
-            self._listener.stop()
-            print("⭕️ Hotkey Listener Stopped")
+    def stop(self):
+        """Detiene todos los hotkeys registrados."""
+        keyboard.unhook_all_hotkeys()
+        self._running = False

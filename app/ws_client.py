@@ -1,8 +1,8 @@
 import asyncio
 import json
 import contextlib
-import time
 import websockets
+import pyperclip
 from websockets.client import WebSocketClientProtocol
 from .bus import Bus
 
@@ -60,7 +60,6 @@ class WSClient:
                 transcription = data.get('transcription', '')
                 if transcription:
                     # Copy to clipboard
-                    import pyperclip
                     pyperclip.copy(get_transcription_highlight(transcription))
                     print("📋 Transcription copied to clipboard!")
         
@@ -109,9 +108,9 @@ class WSClient:
 
 #agregado
 def get_transcription_highlight(text):
-    border = "=" * 60
+    border = "=" * 50
     guide = (
-        f"Modifique y copie el texto entre = para la corrección\n"
+        f"Modifique y copie el texto entre == para guardar la corrección\n"
         f"{border}\n"
         f"{text}\n"
         f"{border}\n"
